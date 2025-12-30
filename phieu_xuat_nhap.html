@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phieu Kho A4 (Final Fix)</title>
+    <title>In Phiếu Kho (AppSheet Integration)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
@@ -14,8 +14,8 @@
 
         body { 
             font-family: 'Times New Roman', serif; 
-            font-size: 10pt; /* Giữ size chữ chuẩn */
-            line-height: 1.15; /* Co dòng lại một chút để tiết kiệm diện tích dọc */
+            font-size: 10pt; 
+            line-height: 1.15; 
             color: #000; 
             background-color: #f0f2f5; 
             margin: 0; 
@@ -24,6 +24,7 @@
 
         @page { size: A4 portrait; margin: 0; }
 
+        /* --- UI ACTIONS --- */
         .actions-container { 
             position: sticky; top: 0; display: flex; justify-content: center; align-items: center; gap: 15px;
             width: 100%; background-color: #343a40; padding: 10px; z-index: 2000; 
@@ -38,46 +39,40 @@
             width: 210mm;
             height: 296mm; 
             background: white;
-            padding: 5mm 10mm; /* Lề trang in an toàn */
+            padding: 5mm 10mm; /* Lề in an toàn */
             display: flex;
             flex-direction: column;
             justify-content: space-between; 
         }
 
-        /* --- CẤU HÌNH LIÊN --- */
+        /* --- CẤU TRÚC LIÊN --- */
         .voucher-section {
-            /* Fix cứng chiều cao mỗi liên để đảm bảo cân đối */
-            height: 48%; 
+            height: 48%; /* Fix cứng chiều cao */
             display: flex;
             flex-direction: column;
             padding: 0 5px;
         }
 
-        /* --- KHOẢNG CÁCH GIỮA & ĐƯỜNG CẮT --- */
         .middle-gap {
-            height: 4%; /* Khoảng cách giữa 2 liên */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 4%; 
+            display: flex; align-items: center; justify-content: center;
         }
         .cut-line {
-            width: 100%;
-            border-top: 1px dashed #000;
-            height: 1px;
+            width: 100%; border-top: 1px dashed #000; height: 1px;
         }
 
-        /* --- NỘI DUNG --- */
+        /* --- HEADER & TITLE --- */
         .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
         .studio-name { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-bottom: 1px; display: block;}
         .studio-info { font-size: 9.5pt; line-height: 1.2; }
         .voucher-num { font-size: 10pt; text-align: left;}
 
-        .title-section { text-align: center; margin-bottom: 5px; margin-top: -5px; } /* Đẩy title lên sát header hơn */
+        .title-section { text-align: center; margin-bottom: 5px; margin-top: -5px; }
         .main-title { font-size: 15pt; font-weight: bold; text-transform: uppercase; margin: 0; }
         .date-sub { font-style: italic; font-size: 9.5pt; margin: 1px 0; }
         .lien-info { font-weight: bold; font-size: 9pt; }
 
-        /* Form Inputs */
+        /* --- FORM --- */
         .form-row { display: flex; align-items: baseline; margin-bottom: 3px; }
         .label { white-space: nowrap; margin-right: 5px; font-size: 10pt; }
         .value { flex: 1; border-bottom: 1px dotted #000; font-weight: bold; padding-left: 5px; font-size: 10pt; }
@@ -85,7 +80,7 @@
         .double-row { display: flex; gap: 15px; margin-bottom: 3px; }
         .half-row { flex: 1; display: flex; align-items: baseline; }
 
-        /* Table - Tối ưu diện tích */
+        /* --- TABLE --- */
         table.stock-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 5px 0; }
         table.stock-table th { border: 1px solid #000; padding: 2px; background: #fff; font-weight: bold; height: 22px; vertical-align: middle;}
         table.stock-table td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; }
@@ -94,19 +89,18 @@
         .right { text-align: right; }
         .bold { font-weight: bold; }
 
-        /* Footer */
+        /* --- FOOTER & SIGNATURE --- */
         .money-text { font-weight: bold; font-style: italic; margin-bottom: 2px; font-size: 10pt; margin-top: 2px; }
         .attach-text { font-style: italic; font-size: 9pt; margin-bottom: 5px; }
 
-        /* --- XỬ LÝ CHỮ KÝ (FIX LỖI TRÀN DÒNG) --- */
         .signatures { display: flex; justify-content: space-between; text-align: center; margin-top: 5px; }
         
-        /* Chia lại tỷ lệ cột: Cột người giao/nhận (Tên công ty dài) sẽ rộng hơn */
-        .sig-col { flex: 0.8; } /* Cột thường (Lập phiếu, Kế toán...) nhỏ lại */
-        .sig-col-large { flex: 1.6; } /* Cột Tên đối tác rộng gấp đôi */
+        /* Cấu hình cột ký tự động giãn */
+        .sig-col { flex: 0.8; } 
+        .sig-col-large { flex: 1.6; } 
         
         .sig-title { font-weight: bold; font-size: 9.5pt; margin-bottom: 2px; }
-        .sig-note { font-style: italic; font-size: 8.5pt; margin: 0 0 35px 0; } /* Khoảng ký 35px là đủ */
+        .sig-note { font-style: italic; font-size: 8.5pt; margin: 0 0 35px 0; }
         .sig-name { font-weight: bold; font-size: 9.5pt; text-transform: uppercase; }
 
         @media print {
@@ -135,33 +129,57 @@
     </div>
 
     <script>
-        // --- DỮ LIỆU ---
+        // --- 1. XỬ LÝ NHẬN DỮ LIỆU TỪ URL APPSHEET ---
+        const params = new URLSearchParams(window.location.search);
+
+        // Hàm helper để parse JSON danh sách hàng hóa (An toàn)
+        function getItemsFromUrl() {
+            try {
+                // Nhận tham số &items=... chứa chuỗi JSON
+                const itemsStr = params.get('items');
+                return itemsStr ? JSON.parse(itemsStr) : [];
+            } catch (e) {
+                console.error("Lỗi đọc dữ liệu sản phẩm:", e);
+                return []; 
+            }
+        }
+
+        // Logic xác định loại phiếu (Nhập/Xuất) từ các tham số AppSheet hay dùng
+        let detectedType = 'import';
+        const rawType = (params.get('loai_phieu') || params.get('hang_muc') || '').toLowerCase();
+        if (rawType.includes('xuất') || rawType.includes('chi') || rawType === 'export') {
+            detectedType = 'export';
+        }
+
+        // Object dbData nhận giá trị từ URL
         const dbData = {
             meta: {
-                id_phieu: "NK-20251230",
-                ngay_lap: "2025-12-30",
-                nguoi_tao: "Hiệp Hoàng",
-                loai_phieu: "import" 
+                // Ưu tiên id_phieu, nếu ko có thì lấy id_thu_chi
+                id_phieu: params.get('id_phieu') || params.get('id_thu_chi') || ".....",
+                ngay_lap: params.get('ngay_lap') || new Date().toISOString().split('T')[0],
+                nguoi_tao: params.get('nguoi_tao') || "Admin",
+                loai_phieu: detectedType
             },
             studio: {
-                ten: "2H STUDIO - HOÀNG CẦU",
-                dia_chi: "111 Hoàng Cầu",
-                email: "2hstudio.wedding@gmail.com",
-                hotline: "826268111 - Zalo: 2H Studio"
+                ten: params.get('ten_studio') || "2H STUDIO",
+                dia_chi: params.get('dia_chi_studio') || params.get('diachi_studio') || "",
+                email: params.get('email_studio') || "",
+                hotline: params.get('hotline_studio') || params.get('dienthoai_studio') || ""
             },
             doi_tac: { 
-                ten: "CTY ẢNH MÀU KỸ THUẬT SỐ", 
-                dia_chi: "Hà Nội" 
+                // Ưu tiên ten_doi_tac, nếu ko có lấy doi_tuong (từ code concatenate của bạn)
+                ten: params.get('ten_doi_tac') || params.get('doi_tuong') || ".....", 
+                dia_chi: params.get('dia_chi_doi_tac') || params.get('dia_chi') || "" 
             },
-            san_pham: [
-                { ten: "Album Photobook 30x30", ma: "PTS-30", dvt: "Quyển", sl: 2, don_gia: 1500000, thanh_tien: 3000000 },
-                { ten: "Ảnh ép gỗ 60x90", ma: "WG-6090", dvt: "Cái", sl: 1, don_gia: 800000, thanh_tien: 800000 },
-                { ten: "Khung để bàn", ma: "K-01", dvt: "Cái", sl: 5, don_gia: 50000, thanh_tien: 250000 },
-                { ten: "Ảnh tráng gương", ma: "TG-50", dvt: "Cái", sl: 2, don_gia: 300000, thanh_tien: 600000 },
-            ],
-            ly_do: "Nhập hàng thành phẩm"
+            // Nếu URL không có &items, hiển thị mảng rỗng (để hiện dòng kẻ trắng)
+            san_pham: getItemsFromUrl(),
+            
+            // Ưu tiên ly_do, nếu ko có lấy noi_dung
+            ly_do: params.get('ly_do') || params.get('noi_dung') || ""
         };
 
+
+        // --- 2. CÁC HÀM TIỆN ÍCH ---
         function readNumberInVietnamese(number) { 
             const units=["","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
             const groupUnits=[""," nghìn"," triệu"," tỷ"," nghìn tỷ"," triệu tỷ"];
@@ -177,9 +195,8 @@
             const isImport = inputType === 'import';
             const title = isImport ? "PHIẾU NHẬP KHO" : "PHIẾU XUẤT KHO";
             let labelPerson, labelKho, sigGiaoTitle, sigNhanTitle, sigGiaoName, sigNhanName;
-
-            // Logic tên cột chữ ký và tên người ký
-            // Mẹo: Cột nào chứa tên công ty dài thì dùng class 'sig-col-large'
+            
+            // Logic cột chữ ký (Resize cột nếu tên dài)
             let classColGiao = 'sig-col';
             let classColNhan = 'sig-col';
 
@@ -188,25 +205,38 @@
                 labelKho = "Nhập tại kho:";
                 sigGiaoTitle = "Người giao hàng";
                 sigGiaoName = dbData.doi_tac.ten;
-                classColGiao = 'sig-col-large'; // Tên NCC thường dài -> Cột rộng
+                classColGiao = 'sig-col-large'; // Tên NCC dài
                 
                 sigNhanTitle = "Người nhận hàng";
-                classColNhan = 'sig-col'; // Nhân viên mình tên ngắn -> Cột nhỏ
+                sigNhanName = ""; // Tên nhân viên kho (có thể để trống để ký)
             } else {
                 labelPerson = "Họ và tên người nhận hàng:";
                 labelKho = "Xuất tại kho:";
                 sigGiaoTitle = "Người giao hàng";
-                classColGiao = 'sig-col'; // Nhân viên mình -> Cột nhỏ
-                
+                sigGiaoName = ""; 
+
                 sigNhanTitle = "Người nhận hàng";
                 sigNhanName = dbData.doi_tac.ten;
-                classColNhan = 'sig-col-large'; // Tên Khách/Cty dài -> Cột rộng
+                classColNhan = 'sig-col-large'; // Tên Khách dài
             }
 
-            const d = new Date(dbData.meta.ngay_lap);
+            // Xử lý ngày
+            let d = new Date();
+            if(dbData.meta.ngay_lap) d = new Date(dbData.meta.ngay_lap);
+            if(isNaN(d.getTime())) d = new Date();
             const dateStr = `Ngày ${d.getDate().toString().padStart(2,'0')} tháng ${(d.getMonth()+1).toString().padStart(2,'0')} năm ${d.getFullYear()}`;
-            const totalMoney = dbData.san_pham.reduce((sum, item) => sum + item.thanh_tien, 0);
+            
+            // Xử lý tiền
+            // Nếu có list sản phẩm -> Tính tổng. Nếu không (chỉ có tổng tiền từ URL) -> Lấy tổng tiền
+            let totalMoney = 0;
+            if (dbData.san_pham.length > 0) {
+                totalMoney = dbData.san_pham.reduce((sum, item) => sum + (Number(item.thanh_tien) || 0), 0);
+            } else {
+                // Fallback nếu truyền so_tien trực tiếp từ URL
+                totalMoney = Number(params.get('so_tien') || 0);
+            }
 
+            // Render bảng
             let rowsHtml = '';
             for (let i = 0; i < 6; i++) {
                 const item = dbData.san_pham[i];
@@ -214,12 +244,12 @@
                     rowsHtml += `
                         <tr>
                             <td class="center">${i+1}</td>
-                            <td>${item.ten}</td>
-                            <td class="center">${item.ma}</td>
-                            <td class="center">${item.dvt}</td>
-                            <td class="center bold">${item.sl}</td>
-                            <td class="right">${item.don_gia.toLocaleString('vi-VN')}</td>
-                            <td class="right">${item.thanh_tien.toLocaleString('vi-VN')}</td>
+                            <td>${item.ten || ''}</td>
+                            <td class="center">${item.ma || ''}</td>
+                            <td class="center">${item.dvt || ''}</td>
+                            <td class="center bold">${item.sl || ''}</td>
+                            <td class="right">${(Number(item.don_gia)||0).toLocaleString('vi-VN')}</td>
+                            <td class="right">${(Number(item.thanh_tien)||0).toLocaleString('vi-VN')}</td>
                         </tr>`;
                 } else {
                     rowsHtml += `<tr><td class="center">&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
@@ -307,14 +337,12 @@
                             <div class="sig-name">${dbData.meta.nguoi_tao}</div>
                         </div>
                         
-                        <!-- Cột động (Large/Normal) cho Người giao -->
                         <div class="${classColGiao}">
                             <div class="sig-title">${sigGiaoTitle}</div>
                             <div class="sig-note">(Ký, họ tên)</div>
                             <div class="sig-name">${sigGiaoName || ''}</div>
                         </div>
                         
-                        <!-- Cột động (Large/Normal) cho Người nhận -->
                         <div class="${classColNhan}">
                             <div class="sig-title">${sigNhanTitle}</div>
                             <div class="sig-note">(Ký, họ tên)</div>
@@ -334,7 +362,9 @@
             </div>`;
         }
 
+        // --- 3. MAIN RENDER ---
         function renderApp() {
+            // Đồng bộ dropdown với dữ liệu URL
             const uiType = document.getElementById('voucherType').value;
             const type = dbData.meta.loai_phieu || uiType; 
             document.getElementById('voucherType').value = type;

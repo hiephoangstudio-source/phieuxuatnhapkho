@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In Phiếu Kho (AppSheet Integration)</title>
+    <title>In Phiếu Kho (Final Fix Dropdown)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
@@ -24,14 +24,13 @@
 
         @page { size: A4 portrait; margin: 0; }
 
-        /* --- UI ACTIONS --- */
         .actions-container { 
             position: sticky; top: 0; display: flex; justify-content: center; align-items: center; gap: 15px;
             width: 100%; background-color: #343a40; padding: 10px; z-index: 2000; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .action-btn { background-color: #0d6efd; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-        .action-select { padding: 8px; border-radius: 4px; }
+        .action-select { padding: 8px; border-radius: 4px; cursor: pointer;}
 
         .page-wrapper { display: flex; justify-content: center; padding: 20px; }
 
@@ -39,29 +38,22 @@
             width: 210mm;
             height: 296mm; 
             background: white;
-            padding: 5mm 10mm; /* Lề in an toàn */
+            padding: 5mm 10mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between; 
         }
 
-        /* --- CẤU TRÚC LIÊN --- */
         .voucher-section {
-            height: 48%; /* Fix cứng chiều cao */
+            height: 48%; 
             display: flex;
             flex-direction: column;
             padding: 0 5px;
         }
 
-        .middle-gap {
-            height: 4%; 
-            display: flex; align-items: center; justify-content: center;
-        }
-        .cut-line {
-            width: 100%; border-top: 1px dashed #000; height: 1px;
-        }
+        .middle-gap { height: 4%; display: flex; align-items: center; justify-content: center; }
+        .cut-line { width: 100%; border-top: 1px dashed #000; height: 1px; }
 
-        /* --- HEADER & TITLE --- */
         .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
         .studio-name { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-bottom: 1px; display: block;}
         .studio-info { font-size: 9.5pt; line-height: 1.2; }
@@ -72,7 +64,6 @@
         .date-sub { font-style: italic; font-size: 9.5pt; margin: 1px 0; }
         .lien-info { font-weight: bold; font-size: 9pt; }
 
-        /* --- FORM --- */
         .form-row { display: flex; align-items: baseline; margin-bottom: 3px; }
         .label { white-space: nowrap; margin-right: 5px; font-size: 10pt; }
         .value { flex: 1; border-bottom: 1px dotted #000; font-weight: bold; padding-left: 5px; font-size: 10pt; }
@@ -80,7 +71,6 @@
         .double-row { display: flex; gap: 15px; margin-bottom: 3px; }
         .half-row { flex: 1; display: flex; align-items: baseline; }
 
-        /* --- TABLE --- */
         table.stock-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 5px 0; }
         table.stock-table th { border: 1px solid #000; padding: 2px; background: #fff; font-weight: bold; height: 22px; vertical-align: middle;}
         table.stock-table td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; }
@@ -89,13 +79,10 @@
         .right { text-align: right; }
         .bold { font-weight: bold; }
 
-        /* --- FOOTER & SIGNATURE --- */
         .money-text { font-weight: bold; font-style: italic; margin-bottom: 2px; font-size: 10pt; margin-top: 2px; }
         .attach-text { font-style: italic; font-size: 9pt; margin-bottom: 5px; }
 
         .signatures { display: flex; justify-content: space-between; text-align: center; margin-top: 5px; }
-        
-        /* Cấu hình cột ký tự động giãn */
         .sig-col { flex: 0.8; } 
         .sig-col-large { flex: 1.6; } 
         
@@ -114,6 +101,7 @@
 <body>
 
     <div class="actions-container">
+        <!-- Dropdown chọn loại phiếu -->
         <select id="voucherType" class="action-select" onchange="renderApp()">
             <option value="import">PHIẾU NHẬP KHO</option>
             <option value="export">PHIẾU XUẤT KHO</option>
@@ -129,36 +117,32 @@
     </div>
 
     <script>
-        // --- 1. XỬ LÝ NHẬN DỮ LIỆU TỪ URL APPSHEET ---
+        // --- 1. XỬ LÝ NHẬN DỮ LIỆU ---
         const params = new URLSearchParams(window.location.search);
 
-        // Hàm helper để parse JSON danh sách hàng hóa (An toàn)
         function getItemsFromUrl() {
             try {
-                // Nhận tham số &items=... chứa chuỗi JSON
                 const itemsStr = params.get('items');
                 return itemsStr ? JSON.parse(itemsStr) : [];
             } catch (e) {
-                console.error("Lỗi đọc dữ liệu sản phẩm:", e);
                 return []; 
             }
         }
 
-        // Logic xác định loại phiếu (Nhập/Xuất) từ các tham số AppSheet hay dùng
-        let detectedType = 'import';
+        // Logic xác định loại phiếu ban đầu từ URL
+        let initialType = 'import';
         const rawType = (params.get('loai_phieu') || params.get('hang_muc') || '').toLowerCase();
         if (rawType.includes('xuất') || rawType.includes('chi') || rawType === 'export') {
-            detectedType = 'export';
+            initialType = 'export';
         }
 
-        // Object dbData nhận giá trị từ URL
         const dbData = {
             meta: {
-                // Ưu tiên id_phieu, nếu ko có thì lấy id_thu_chi
                 id_phieu: params.get('id_phieu') || params.get('id_thu_chi') || ".....",
                 ngay_lap: params.get('ngay_lap') || new Date().toISOString().split('T')[0],
                 nguoi_tao: params.get('nguoi_tao') || "Admin",
-                loai_phieu: detectedType
+                // Lưu ý: Biến này chỉ dùng để set giá trị mặc định lúc đầu
+                default_type: initialType 
             },
             studio: {
                 ten: params.get('ten_studio') || "2H STUDIO",
@@ -167,19 +151,15 @@
                 hotline: params.get('hotline_studio') || params.get('dienthoai_studio') || ""
             },
             doi_tac: { 
-                // Ưu tiên ten_doi_tac, nếu ko có lấy doi_tuong (từ code concatenate của bạn)
                 ten: params.get('ten_doi_tac') || params.get('doi_tuong') || ".....", 
                 dia_chi: params.get('dia_chi_doi_tac') || params.get('dia_chi') || "" 
             },
-            // Nếu URL không có &items, hiển thị mảng rỗng (để hiện dòng kẻ trắng)
             san_pham: getItemsFromUrl(),
-            
-            // Ưu tiên ly_do, nếu ko có lấy noi_dung
             ly_do: params.get('ly_do') || params.get('noi_dung') || ""
         };
 
 
-        // --- 2. CÁC HÀM TIỆN ÍCH ---
+        // --- 2. HÀM RENDER ---
         function readNumberInVietnamese(number) { 
             const units=["","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
             const groupUnits=[""," nghìn"," triệu"," tỷ"," nghìn tỷ"," triệu tỷ"];
@@ -196,19 +176,19 @@
             const title = isImport ? "PHIẾU NHẬP KHO" : "PHIẾU XUẤT KHO";
             let labelPerson, labelKho, sigGiaoTitle, sigNhanTitle, sigGiaoName, sigNhanName;
             
-            // Logic cột chữ ký (Resize cột nếu tên dài)
             let classColGiao = 'sig-col';
             let classColNhan = 'sig-col';
 
+            // Logic hoán đổi tên người giao/nhận dựa trên inputType (lấy từ dropdown)
             if (isImport) {
                 labelPerson = "Họ và tên người giao hàng:";
                 labelKho = "Nhập tại kho:";
                 sigGiaoTitle = "Người giao hàng";
                 sigGiaoName = dbData.doi_tac.ten;
-                classColGiao = 'sig-col-large'; // Tên NCC dài
+                classColGiao = 'sig-col-large'; 
                 
                 sigNhanTitle = "Người nhận hàng";
-                sigNhanName = ""; // Tên nhân viên kho (có thể để trống để ký)
+                sigNhanName = ""; 
             } else {
                 labelPerson = "Họ và tên người nhận hàng:";
                 labelKho = "Xuất tại kho:";
@@ -217,26 +197,21 @@
 
                 sigNhanTitle = "Người nhận hàng";
                 sigNhanName = dbData.doi_tac.ten;
-                classColNhan = 'sig-col-large'; // Tên Khách dài
+                classColNhan = 'sig-col-large'; 
             }
 
-            // Xử lý ngày
             let d = new Date();
             if(dbData.meta.ngay_lap) d = new Date(dbData.meta.ngay_lap);
             if(isNaN(d.getTime())) d = new Date();
             const dateStr = `Ngày ${d.getDate().toString().padStart(2,'0')} tháng ${(d.getMonth()+1).toString().padStart(2,'0')} năm ${d.getFullYear()}`;
             
-            // Xử lý tiền
-            // Nếu có list sản phẩm -> Tính tổng. Nếu không (chỉ có tổng tiền từ URL) -> Lấy tổng tiền
             let totalMoney = 0;
             if (dbData.san_pham.length > 0) {
                 totalMoney = dbData.san_pham.reduce((sum, item) => sum + (Number(item.thanh_tien) || 0), 0);
             } else {
-                // Fallback nếu truyền so_tien trực tiếp từ URL
                 totalMoney = Number(params.get('so_tien') || 0);
             }
 
-            // Render bảng
             let rowsHtml = '';
             for (let i = 0; i < 6; i++) {
                 const item = dbData.san_pham[i];
@@ -362,13 +337,11 @@
             </div>`;
         }
 
-        // --- 3. MAIN RENDER ---
         function renderApp() {
-            // Đồng bộ dropdown với dữ liệu URL
-            const uiType = document.getElementById('voucherType').value;
-            const type = dbData.meta.loai_phieu || uiType; 
-            document.getElementById('voucherType').value = type;
-
+            // SỬA LỖI Ở ĐÂY:
+            // Chỉ lấy giá trị trực tiếp từ Dropdown, không so sánh với dbData nữa
+            const type = document.getElementById('voucherType').value;
+            
             const container = document.getElementById('voucher-content');
             
             const html1 = createVoucherHtml(1, "Lưu nội bộ", type);
@@ -377,10 +350,18 @@
 
             const separator = `<div class="middle-gap"><div class="cut-line"></div></div>`;
             container.innerHTML = html1 + separator + html2;
+            
+            // Cập nhật tiêu đề tab
             document.title = (type === 'import' ? 'PNK-' : 'PXK-') + dbData.meta.id_phieu;
         }
 
+        // --- 3. KHỞI TẠO (CHẠY 1 LẦN KHI LOAD) ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Bước 1: Gán giá trị mặc định từ URL vào Dropdown
+            if(dbData.meta.default_type) {
+                document.getElementById('voucherType').value = dbData.meta.default_type;
+            }
+            // Bước 2: Gọi render dựa trên giá trị Dropdown đó
             renderApp();
         });
 

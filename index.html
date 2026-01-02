@@ -16,17 +16,9 @@
         .action-btn { background-color: #0d6efd; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
         .action-select { padding: 8px; border-radius: 4px; cursor: pointer;}
         .page-wrapper { display: flex; justify-content: center; padding: 20px; }
-        
         .a4-page { width: 210mm; height: 296mm; background: white; padding: 5mm 10mm; display: flex; flex-direction: column; justify-content: space-between; }
-        
-        /* --- ĐIỀU CHỈNH LAYOUT (CÁCH 1) --- */
-        /* Giảm từ 48% xuống 47% để tạo khoảng dư an toàn */
-        .voucher-section { height: 47%; display: flex; flex-direction: column; padding: 0 5px; }
-        
-        /* Giảm khoảng giữa từ 4% xuống 2% */
-        .middle-gap { height: 2%; display: flex; align-items: center; justify-content: center; }
-        /* ---------------------------------- */
-
+        .voucher-section { height: 48%; display: flex; flex-direction: column; padding: 0 5px; }
+        .middle-gap { height: 4%; display: flex; align-items: center; justify-content: center; }
         .cut-line { width: 100%; border-top: 1px dashed #000; height: 1px; }
         .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
         .studio-name { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-bottom: 1px; display: block;}
@@ -55,27 +47,11 @@
         .sig-title { font-weight: bold; font-size: 9.5pt; margin-bottom: 2px; }
         .sig-note { font-style: italic; font-size: 8.5pt; margin: 0 0 35px 0; }
         .sig-name { font-weight: bold; font-size: 9.5pt; text-transform: uppercase; }
-
-        /* --- ĐIỀU CHỈNH PRINT (CÁCH 2) --- */
         @media print {
             body { background: none; }
             .actions-container { display: none; }
-            .page-wrapper { padding: 0; margin: 0; }
-            
-            .a4-page { 
-                width: 100%; 
-                /* Giảm nhẹ 1mm để trừ hao lề máy in */
-                height: 295mm; 
-                box-shadow: none; 
-                padding: 5mm 10mm; 
-                
-                /* Cắt bỏ phần thừa tuyệt đối */
-                overflow: hidden;
-                
-                /* Ngăn ngắt trang */
-                page-break-after: avoid; 
-                page-break-inside: avoid;
-            } 
+            .page-wrapper { padding: 0; }
+            .a4-page { width: 100%; height: 296mm; box-shadow: none; padding: 5mm 10mm; } 
         }
     </style>
 </head>
@@ -128,9 +104,12 @@
                 hotline: params.get('hotline_studio') || params.get('dienthoai_studio') || ""
             },
             doi_tac: { 
+                // Lấy riêng tên NCC và tên Khách
                 ten_ncc: params.get('ten_ncc') || "",
                 ten_khach: params.get('ten_khach') || "",
+                // Tên chung (backup)
                 ten_chung: params.get('ten_doi_tac') || params.get('doi_tuong') || ".....",
+                
                 dia_chi: params.get('dia_chi_doi_tac') || params.get('dia_chi') || "" 
             },
             san_pham: getItemsFromUrl(),
@@ -158,20 +137,26 @@
             let currentPartnerName = "";
 
             if (isImport) {
+                // Nhập kho: Ưu tiên tên NCC. Nếu ko có lấy tên chung
                 currentPartnerName = dbData.doi_tac.ten_ncc || dbData.doi_tac.ten_chung;
+
                 labelPerson = "Họ và tên người giao hàng:";
                 labelKho = "Nhập tại kho:";
                 sigGiaoTitle = "Người giao hàng";
                 sigGiaoName = currentPartnerName;
                 classColGiao = 'sig-col-large'; 
+                
                 sigNhanTitle = "Người nhận hàng";
                 sigNhanName = ""; 
             } else {
+                // Xuất kho: Ưu tiên tên Khách. Nếu ko có lấy tên chung
                 currentPartnerName = dbData.doi_tac.ten_khach || dbData.doi_tac.ten_chung;
+
                 labelPerson = "Họ và tên người nhận hàng:";
                 labelKho = "Xuất tại kho:";
                 sigGiaoTitle = "Người giao hàng";
                 sigGiaoName = ""; 
+
                 sigNhanTitle = "Người nhận hàng";
                 sigNhanName = currentPartnerName;
                 classColNhan = 'sig-col-large'; 
